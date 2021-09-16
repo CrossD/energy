@@ -9,7 +9,7 @@
 }
 \usage{
 eqdist.etest(x, sizes, distance = FALSE,
-    method=c("original","discoB","discoF"), R)
+    method=c("original","discoB","discoF"), R, U=FALSE)
 eqdist.e(x, sizes, distance = FALSE,
     method=c("original","discoB","discoF"))
 ksample.e(x, sizes, distance = FALSE,
@@ -21,6 +21,7 @@ ksample.e(x, sizes, distance = FALSE,
   \item{distance}{logical: if TRUE, first argument is a distance matrix}
   \item{method}{ use original (default) or distance components (discoB, discoF)}
   \item{R}{ number of bootstrap replicates }
+  \item{U}{Whether an unbiased U-statistic should be used (TRUE), or a V-statistic should be used as in the original energy test (FALSE, default)}
   \item{ix}{ a permutation of the row indices of x }
 }
 \details{

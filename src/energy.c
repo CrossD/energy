@@ -16,12 +16,12 @@
 #include <Rmath.h>
 
 void   ksampleEtest(double *x, int *byrow, int *nsamples, int *sizes, int *dim,
-            int *R, double *e0, double *e, double *pval);
+            int *R, double *e0, double *e, double *pval, int *U);
 void   E2sample(double *x, int *sizes, int *dim, double *stat);
 
-double edist(double **D, int m, int n);
-double multisampleE(double **D, int nsamples, int *sizes, int *perm);
-double twosampleE(double **D, int m, int n, int *xrows, int *yrows);
+double edist(double **D, int m, int n, int unbiased);
+double multisampleE(double **D, int nsamples, int *sizes, int *perm, int unbiased);
+double twosampleE(double **D, int m, int n, int *xrows, int *yrows, int unbiased);
 double E2(double **x, int *sizes, int *start, int ncol, int *perm);
 double Eksample(double *x, int *byrow, int r, int d, int K, int *sizes, int *ix);
 void   distance(double **bxy, double **D, int N, int d);
@@ -101,7 +101,8 @@ void E2sample(double *x, int *sizes, int *dim, double *stat) {
 
 void ksampleEtest(double *x, int *byrow,
                   int *nsamples, int *sizes, int *dim,
-                  int *R, double *e0, double *e, double *pval)
+                  int *R, double *e0, double *e, double *pval,
+                  int *U)
 {
     /*
       exported for R energy package: E test for equal distributions
@@ -138,7 +139,7 @@ void ksampleEtest(double *x, int *byrow,
     else
         vector2matrix(x, D, N, N, *byrow);
 
-    *e0 = multisampleE(D, K, sizes, perm);
+    *e0 = multisampleE(D, K, sizes, perm, *U);
 
     /* bootstrap */
     if (B > 0) {
@@ -146,7 +147,7 @@ void ksampleEtest(double *x, int *byrow,
         GetRNGstate();
         for (b=0; b<B; b++) {
             permute(perm, N);
-            e[b] = multisampleE(D, K, sizes, perm);
+            e[b] = multisampleE(D, K, sizes, perm, *U);
             if ((*e0) < e[b]) ek++;
         }
         PutRNGstate();
@@ -213,7 +214,7 @@ double E2(double **x, int *sizes, int *start, int ncol, int *perm)
 }
 
 
-double multisampleE(double **D, int nsamples, int *sizes, int *perm)
+double multisampleE(double **D, int nsamples, int *sizes, int *perm, int unbiased)
 {
     /*
       returns the multisample E statistic
@@ -234,14 +235,14 @@ double multisampleE(double **D, int nsamples, int *sizes, int *perm)
         m = sizes[i];
         for (j=i+1; j<nsamples; j++) {
             n = sizes[j];
-            e += twosampleE(D, m, n, perm+M[i], perm+M[j]);
+            e += twosampleE(D, m, n, perm+M[i], perm+M[j], unbiased);
         }
     }
     Free(M);
     return(e);
 }
 
-double twosampleE(double **D, int m, int n, int *xrows, int *yrows)
+double twosampleE(double **D, int m, int n, int *xrows, int *yrows, int unbiased)
 {
     /*
        return the e-distance between two samples
@@ -260,6 +261,11 @@ double twosampleE(double **D, int m, int n, int *xrows, int *yrows)
         for (j=i+1; j<n; j++)
             sumyy += D[yrows[i]][yrows[j]];
     sumyy *= 2.0/((double)(n*n));
+    if (unbiased == 1) {
+      sumxx *= (double)(m) / (double)(m - 1);
+      sumyy *= (double)(n) / (double)(n - 1);
+    }
+
     for (i=0; i<m; i++)
         for (j=0; j<n; j++)
             sumxy += D[xrows[i]][yrows[j]];
@@ -268,7 +274,7 @@ double twosampleE(double **D, int m, int n, int *xrows, int *yrows)
     return (double)(m*n)/((double)(m+n)) * (2*sumxy - sumxx - sumyy);
 }
 
-double edist(double **D, int m, int n)
+double edist(double **D, int m, int n, int unbiased)
 {
     /*
       return the e-distance between two samples size m and n
@@ -286,6 +292,11 @@ double edist(double **D, int m, int n)
         for (j=i+1; j<n; j++)
             sumyy += D[i][j];
     sumyy *= 2.0/((double)(n*n));
+    if (unbiased == 1) {
+      sumxx *= (double)(m) / (double)(m - 1);
+      sumyy *= (double)(n) / (double)(n - 1);
+    }
+
     for (i=0; i<m; i++)
         for (j=0; j<n; j++)
             sumxy += D[i][j];

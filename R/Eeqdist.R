@@ -18,7 +18,7 @@ function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"))
 }
 
 eqdist.etest <-
-function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"), R)
+function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"), R, U=FALSE)
 {
     ## multivariate E-test of the multisample hypothesis of equal distributions
     ##   x:          matrix of pooled sample or distance matrix
@@ -26,6 +26,8 @@ function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"), R
     ##   distance:   logical, TRUE if x is a distance matrix, otherwise false
     ##   method:     original (default) or disco components
     ##   R:          number of replicates
+    ##   U:          Whether to use an unbiased U-statistic (TRUE) or 
+    ##               a V-statistic (FALSE, default)
     ##
 
     method <-match.arg(method)
@@ -64,6 +66,7 @@ function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"), R
         e0 = as.double(e0),
         e = as.double(repl),
         pval = as.double(pval),
+        U = as.integer(U), 
         PACKAGE = "energy")
 
     names(b$e0) <- "E-statistic"
@@ -76,7 +79,8 @@ function(x, sizes, distance = FALSE, method = c("original","discoB","discoF"), R
         method = methodname,
         statistic = b$e0,
         p.value = b$pval,
-        data.name = dataname)
+        data.name = dataname,
+        perm.samp = b$e)
 
     class(e) <- "htest"
     e

@@ -10,7 +10,7 @@ extern void dCOV(void *, void *, void *, void *, void *, void *, void *);
 extern void dCOVtest(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void indepE(void *, void *, void *, void *, void *);
 extern void indepEtest(void *, void *, void *, void *, void *, void *, void *);
-extern void ksampleEtest(void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void ksampleEtest(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
 extern SEXP _energy_D_center(SEXP);
@@ -32,7 +32,7 @@ static const R_CMethodDef CEntries[] = {
   {"dCOVtest",     (DL_FUNC) &dCOVtest,     8},
   {"indepE",       (DL_FUNC) &indepE,       5},
   {"indepEtest",   (DL_FUNC) &indepEtest,   7},
-  {"ksampleEtest", (DL_FUNC) &ksampleEtest, 9},
+  {"ksampleEtest", (DL_FUNC) &ksampleEtest, 10},
   {NULL, NULL, 0}
 };
 
